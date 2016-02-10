@@ -19,12 +19,15 @@ def import_file_painting(filename):##The file content is raw format. It is neede
 	content=list(open(filename))
 	return content
 
-def parse_imported_file(raw_content):
-	print raw_content
-	print "Number of rows", raw_content.count('\n')
+def get_size_img(raw_content):
+	first_row=raw_content[0]
+	pos=first_row.find(' ')
+	cols_number=first_row[pos+1:len(first_row)-1]
+	rows_number=first_row[0:pos]
+	return int(rows_number), int(cols_number)
 
 def test():
 	raw_content=import_file_painting("logo.in")	
-	parse_imported_file(raw_content)
+	get_size_img(raw_content)
 
 test()
