@@ -16,14 +16,15 @@ def erease_cell(row, column):
 		return -1
 
 def import_file_painting(filename):##The file content is raw format. It is needed to parse
-	f=list(open(filename))
+	content=list(open(filename))
 	return content
 
 def parse_imported_file(raw_content):
-	
+	print raw_content
+	print "Number of rows", raw_content.count('\n')
 
 def test():
 	raw_content=import_file_painting("logo.in")	
-	print raw_content
+	parse_imported_file(raw_content)
 
 test()
