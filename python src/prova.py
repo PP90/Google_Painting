@@ -31,12 +31,24 @@ def remove_return_characters(raw_content, n_cols):
 	return raw_content
 	
 def list_to_matrix_char(raw_content, n_rows, n_cols):
-		print "Roba"
+	char_matrix=[None]*n_rows
+	for idx, element in enumerate(raw_content):
+		print "Idx:", idx
+		char_matrix[idx]=list(element)
+	
+	return char_matrix
+
+def print_pretty(raw_content):
+	for element in raw_content:
+		print element
+
 
 def test():
 	raw_content=import_file_painting("logo.in")	
 	n_rows, n_cols= get_size_img(raw_content[0])
 	raw_content.pop(0)
-	raw_content=remove_return_characters(raw_content, n_cols)
-
+	raw_content=remove_return_characters(raw_content, n_cols)	
+	char_matrix=list_to_matrix_char(raw_content, n_rows, n_cols)
+	print_pretty(raw_content)
+	print char_matrix
 test()
