@@ -1,5 +1,10 @@
 ###Python soruce code for google painting problem
 
+HORIZONTAL_WAY=60
+VERTICAL_WAY=22
+UP=12
+DOWN=34
+
 def paint_square(rows, columns, s):
 	if(rows<1 or columns <1 or  s<1):
 		print "Error"
@@ -33,7 +38,6 @@ def remove_return_characters(raw_content, n_cols):
 def list_to_matrix_char(raw_content, n_rows, n_cols):
 	char_matrix=[None]*n_rows
 	for idx, element in enumerate(raw_content):
-		print "Idx:", idx
 		char_matrix[idx]=list(element)
 	
 	return char_matrix
@@ -42,6 +46,27 @@ def print_pretty(raw_content):
 	for element in raw_content:
 		print element
 
+def is_a_dot(element):
+	if(element=='.'):
+		return 1
+	else:
+		return -1
+
+def is_a_sharp(element):
+	if(element=='#'):
+		return 1
+	else:
+		return -1
+
+def get_sub_image(image, hor_size, ver_size):
+	print "to do"
+
+
+def get_size_sub_image(sub_image):
+	print "to do"
+
+def recognize_row(sub_image, mode):
+		print "to do"
 
 def test():
 	raw_content=import_file_painting("logo.in")	
@@ -50,5 +75,6 @@ def test():
 	raw_content=remove_return_characters(raw_content, n_cols)	
 	char_matrix=list_to_matrix_char(raw_content, n_rows, n_cols)
 	print_pretty(raw_content)
-	print char_matrix
+
+	
 test()
