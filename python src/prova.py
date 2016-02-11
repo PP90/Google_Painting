@@ -58,9 +58,12 @@ def is_a_sharp(element):
 	else:
 		return -1
 
-def get_sub_image(image, hor_size, ver_size):
-	print "to do"
-
+def get_sub_image(matrix_char, top_left, bottom_left, top_right, bottom_right):
+	rows_image=matrix_char[top_left:bottom_left]
+	sub_image=[]
+	for index, element in enumerate(rows_image):
+		sub_image.append(element[top_left:top_right])
+	return sub_image
 
 def get_size_sub_image(sub_image):
 	print "to do"
@@ -68,13 +71,23 @@ def get_size_sub_image(sub_image):
 def recognize_row(sub_image, mode):
 		print "to do"
 
+def char_matrix2string_list(char_matrix):
+	string_list=[]
+	for row in char_matrix:
+		string_list.append(''.join(row))
+	return string_list
+
 def test():
 	raw_content=import_file_painting("logo.in")	
-	n_rows, n_cols= get_size_img(raw_content[0])
-	raw_content.pop(0)
-	raw_content=remove_return_characters(raw_content, n_cols)	
-	char_matrix=list_to_matrix_char(raw_content, n_rows, n_cols)
-	print_pretty(raw_content)
+	n_rows, n_cols= get_size_img(raw_content[0])##The size is the first row.
+	raw_content.pop(0)##The first row is removed
+	raw_content=remove_return_characters(raw_content, n_cols)##the return character are removed
+	char_matrix=list_to_matrix_char(raw_content, n_rows, n_cols)##The raw content-char matrix conversion is performed	
+	sub_image=get_sub_image(char_matrix, 0,2,2,2)##giving the coordinates a submatrix is extracted from the char matrix
+	print sub_image	
+	string_list=char_matrix2string_list(char_matrix)
+	print_pretty(string_list)
+	#print_pretty(sub_image)
 
 	
 test()
