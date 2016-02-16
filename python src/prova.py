@@ -91,9 +91,14 @@ def recognize_row(sub_image, mode):
 	rows= len(sub_image)
 	cols= len(sub_image[0])
 	n_lines=0
-
+	n_sharpes=0
 	if(mode==HORIZ_LEFT):
-		print "a"	
+		for x in range(0,rows):
+			for y in range(0, cols):
+				if(is_a_sharp(sub_image[x][y])==1):
+					n_sharpes++
+				else break
+	print n_sharpes
 	elif(mode==HORIZ_RIGHT):
 		print "a"
 	elif(mode==VER_UP):
