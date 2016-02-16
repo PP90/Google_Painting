@@ -1,7 +1,12 @@
 ###Python soruce code for google painting problem
 
+from line import Line
+
 HORIZ_LEFT=60
 HORIZ_RIGHT=22
+
+VERTICAL="Vertical"
+HORIZONTAL="Horizontal"
 
 VER_UP=53
 VER_DOWN=34
@@ -92,18 +97,29 @@ def recognize_row(sub_image, mode):
 	cols= len(sub_image[0])
 	n_lines=0
 	n_sharpes=0
-	if(mode==HORIZ_LEFT):
+	lines_list=[]
+
+	if(mode==HORIZ_RIGHT):
 		for x in range(0,rows):
 			for y in range(0, cols):
 				if(is_a_sharp(sub_image[x][y])==1):
-					n_sharpes++
-				else break
-	print n_sharpes
-	elif(mode==HORIZ_RIGHT):
+					n_sharpes=n_sharpes+1
+
+				if n_sharpes>0 and (is_a_sharp(sub_image[x][y])==-1 or y==cols-1):
+					recognized_line= Line(x,y,HORIZONTAL,n_sharpes)
+					lines_list.append(recognized_line)
+					n_sharpes=0	
+			
+	for element in lines_list:
+		element.printInfo()		
+
+	if(mode==HORIZ_LEFT):
 		print "a"
-	elif(mode==VER_UP):
+
+	if(mode==VER_UP):
 		print "a"
-	elif(mode==VER_DOWN):
+
+	if(mode==VER_DOWN):
 		print "a"
 	else:
 		print "Error, choose correct mode"
@@ -125,7 +141,7 @@ def test():
 	sub_image=get_sub_image(char_matrix, 0,20,0,20)##giving the coordinates a submatrix is extracted from the char matrix
 	string_list2=char_matrix2string_list(sub_image)	
 	print_pretty(string_list2)
-	recognize_row(sub_image, VER_UP)
+	recognize_row(sub_image, HORIZ_RIGHT)
 	'''
 	DEBUG PRINTS
 	string_list=char_matrix2string_list(sub_image)
