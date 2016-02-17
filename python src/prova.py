@@ -100,30 +100,48 @@ def recognize_row(sub_image, mode):
 	lines_list=[]
 
 	if(mode==HORIZ_RIGHT):
-		for x in range(0,rows):
-			for y in range(0, cols):
-				if(is_a_sharp(sub_image[x][y])==1):
+		for i in range(0,rows):
+			for j in range(0, cols):
+				if(is_a_sharp(sub_image[i][j])==1):
 					n_sharpes=n_sharpes+1
 
-				if n_sharpes>0 and (is_a_sharp(sub_image[x][y])==-1 or y==cols-1):
-					recognized_line= Line(x,y,HORIZONTAL,n_sharpes)
+				if n_sharpes>0 and (is_a_sharp(sub_image[i][j])==-1 or j==cols-1):
+					recognized_line= Line(i,j,HORIZONTAL,n_sharpes)
 					lines_list.append(recognized_line)
 					n_sharpes=0	
-			
-	for element in lines_list:
-		element.printInfo()		
-
-	if(mode==HORIZ_LEFT):
+	
+		return lines_list
+		
+	elif(mode==HORIZ_LEFT):
 		print "a"
 
-	if(mode==VER_UP):
+	elif(mode==VER_UP):
 		print "a"
 
-	if(mode==VER_DOWN):
-		print "a"
+	elif(mode==VER_DOWN):
+		for j in range(0,cols):
+			for i in range(0, rows):
+			#	print "(i,j)",i,j
+				if(is_a_sharp(sub_image[i][j])==1):
+					n_sharpes=n_sharpes+1
+
+				if n_sharpes>0 and (is_a_sharp(sub_image[i][j])==-1 or j==cols-1):
+					recognized_line= Line(i,j,VERTICAL,n_sharpes)
+					lines_list.append(recognized_line)
+					n_sharpes=0	
+		
+		return lines_list
+	
 	else:
 		print "Error, choose correct mode"
 
+##The image is drawn on file
+def draw_image_on_file(image, filename):
+	target = open(filename, 'w')
+	for element in image:
+		target.write(element)
+		target.write("\n")
+	target.close()
 
 ##Conversion frm char matrix to strings list
 def char_matrix2string_list(char_matrix):
@@ -141,7 +159,9 @@ def test():
 	sub_image=get_sub_image(char_matrix, 0,20,0,20)##giving the coordinates a submatrix is extracted from the char matrix
 	string_list2=char_matrix2string_list(sub_image)	
 	print_pretty(string_list2)
+	#recognize_row(sub_image, HORIZ_RIGHT)
 	recognize_row(sub_image, HORIZ_RIGHT)
+	
 	'''
 	DEBUG PRINTS
 	string_list=char_matrix2string_list(sub_image)
