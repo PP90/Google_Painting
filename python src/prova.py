@@ -95,21 +95,27 @@ def get_size_sub_image(sub_image):
 def recognize_row(sub_image, mode):
 	rows= len(sub_image)
 	cols= len(sub_image[0])
-	n_lines=0
-	n_sharpes=0
+	found=False
 	lines_list=[]
+	r1=-1
+	c1=-1
 
 	if(mode==HORIZ_RIGHT):
 		for i in range(0,rows):
 			for j in range(0, cols):
-				if(is_a_sharp(sub_image[i][j])==1):
-					n_sharpes=n_sharpes+1
+				if(is_a_sharp(sub_image[i][j])==1 and found==False):
+					found=True
+					r1=i
+					c1=j
 
-				if n_sharpes>0 and (is_a_sharp(sub_image[i][j])==-1 or j==cols-1):
-					recognized_line= Line(i,j,HORIZONTAL,n_sharpes)
+				if (found==True and (is_a_sharp(sub_image[i][j])==-1 or j==cols-1)):
+					recognized_line= Line(r1,c1,i, j)
 					lines_list.append(recognized_line)
-					n_sharpes=0	
-	
+					found=False
+
+		for element in lines_list:
+			element.printInfo()
+
 		return lines_list
 		
 	elif(mode==HORIZ_LEFT):
