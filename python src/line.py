@@ -1,30 +1,31 @@
+from point import Point
+
 VERTICAL="Vertical"
 HORIZONTAL="Horizontal"
 DEFAULT=-1
 
 class Line:
-	r1=DEFAULT
-	r2=DEFAULT
-	c1=DEFAULT
-	c2=DEFAULT
+	point_p1=DEFAULT
+	point_p2=DEFAULT
 
-	def __init__(self, r1, c1, r2, c2):
-		self.r1=r1
-		self.c1=c1
-		self.r2=r2
-		self.c2=c2
+	def __init__(self, point_p1, point_p2):
+		self.point_p1=point_p1
+		self.point_p2=point_p2
 
 	##Actually the returned values is not still correvt beacuse it doesn't take into account the last element. TO FIX
 	def get_lenght(self):
-		if(self.c1==self.c2):
-			return (self.r2-self.r1)
-		if(self.r1==self.r2):
-			return (self.c2-self.c1)
+		if(self.point_p1.get_x()==self.point_p2.get_x()):
+			return (self.point_p2.get_y()-self.point_p1.get_y())
+		if(self.point_p1.get_y()==self.point_p2.get_y()):
+			return (self.point_p2.get_x()-self.point_p1.get_x())
 
 
-	def printInfo(self):
-		print "(r1,c1)", self.r1, self.c1
-		print "(r2,c2)", self.r2, self.c2
-		#print "Len: ", self.get_lenght()
+	def print_info(self):
+		self.point_p1.print_info()
+		self.point_p2.print_info()
+		print self.get_lenght()
+
+
+
 
 

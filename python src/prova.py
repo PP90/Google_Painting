@@ -1,6 +1,7 @@
 ###Python soruce code for google painting problem
 
 from line import Line
+from point import Point
 
 HORIZ_LEFT=60
 HORIZ_RIGHT=22
@@ -97,24 +98,22 @@ def recognize_row(sub_image, mode):
 	cols= len(sub_image[0])
 	found=False
 	lines_list=[]
-	r1=-1
-	c1=-1
+	starting_point=Point()
 
 	if(mode==HORIZ_RIGHT):
 		for i in range(0,rows):
 			for j in range(0, cols):
 				if(is_a_sharp(sub_image[i][j])==1 and found==False):
 					found=True
-					r1=i
-					c1=j
+					starting_point.set_values(j,i)
 
 				if (found==True and (is_a_sharp(sub_image[i][j])==-1 or j==cols-1)):
-					recognized_line= Line(r1,c1,i, j)
+					ending_point=Point(j,i)
+					recognized_line= Line(starting_point,ending_point)
+					recognized_line.print_info()
 					lines_list.append(recognized_line)
+					print "\n"
 					found=False
-
-		for element in lines_list:
-			element.printInfo()
 
 		return lines_list
 		
@@ -127,7 +126,6 @@ def recognize_row(sub_image, mode):
 	elif(mode==VER_DOWN):
 		for j in range(0,cols):
 			for i in range(0, rows):
-			#	print "(i,j)",i,j
 				if(is_a_sharp(sub_image[i][j])==1):
 					n_sharpes=n_sharpes+1
 
@@ -140,6 +138,17 @@ def recognize_row(sub_image, mode):
 	
 	else:
 		print "Error, choose correct mode"
+
+def get_neighboor(n_rows, n_columns, row, column):
+	if(row-1<0 | columns-1<0):
+		return -1
+	if(row+1>n_rows | columns+1>n_rows):
+		return -1
+	
+
+def recognize_square(sub_image, row, column):
+	if(is_a_sharp(sub_image[row][column])==1):
+		print "get neighboor"
 
 ##The image is drawn on file
 def draw_image_on_file(image, filename):
@@ -161,7 +170,9 @@ def test():
 	n_rows, n_cols= get_size_img(raw_content[0])##The size is the first row.
 	raw_content.pop(0)##The first row is removed
 	raw_content=remove_return_characters(raw_content, n_cols)##the return character are removed
-	char_matrix=list_to_matrix_char(raw_content, n_rows, n_cols)##The raw content-char matrix conversion is performed	
+	char_matrix=list_to_matrix_char(raw_content, n_rows, n_cols)##The raw content-char matrix conversion is performed
+	p=Point(0,20)
+	p2=Point(0,20)	
 	sub_image=get_sub_image(char_matrix, 0,20,0,20)##giving the coordinates a submatrix is extracted from the char matrix
 	string_list2=char_matrix2string_list(sub_image)	
 	print_pretty(string_list2)
