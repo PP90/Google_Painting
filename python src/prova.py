@@ -99,6 +99,7 @@ def recognize_row(sub_image, mode):
 	found=False
 	lines_list=[]
 	starting_point=Point()
+	ending_point=Point()
 
 	if(mode==HORIZ_RIGHT):
 		for i in range(0,rows):
@@ -108,7 +109,11 @@ def recognize_row(sub_image, mode):
 					starting_point.set_values(j,i)
 
 				if (found==True and (is_a_sharp(sub_image[i][j])==-1 or j==cols-1)):
-					ending_point=Point(j,i)
+					if(j!=cols-1):
+						ending_point=Point(j-1,i)
+					else:
+						ending_point=Point(j,i)
+
 					recognized_line= Line(starting_point,ending_point)
 					recognized_line.print_info()
 					lines_list.append(recognized_line)

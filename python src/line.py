@@ -15,9 +15,9 @@ class Line:
 	##Actually the returned values is not still correvt beacuse it doesn't take into account the last element. TO FIX
 	def get_lenght(self):
 		if(self.point_p1.get_x()==self.point_p2.get_x()):
-			return (self.point_p2.get_y()-self.point_p1.get_y())
+			return (self.point_p2.get_y()-self.point_p1.get_y()+1)
 		if(self.point_p1.get_y()==self.point_p2.get_y()):
-			return (self.point_p2.get_x()-self.point_p1.get_x())
+			return (self.point_p2.get_x()-self.point_p1.get_x()+1)
 
 
 	def print_info(self):
