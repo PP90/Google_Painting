@@ -12,7 +12,6 @@ class Line:
 		self.point_p1=point_p1
 		self.point_p2=point_p2
 
-	##Actually the returned values is not still correvt beacuse it doesn't take into account the last element. TO FIX
 	def get_lenght(self):
 		if(self.point_p1.get_x()==self.point_p2.get_x()):
 			return (self.point_p2.get_y()-self.point_p1.get_y()+1)

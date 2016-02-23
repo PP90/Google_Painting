@@ -106,7 +106,7 @@ def recognize_row(sub_image, mode):
 			for j in range(0, cols):
 				if(is_a_sharp(sub_image[i][j])==1 and found==False):
 					found=True
-					starting_point.set_values(j,i)
+					starting_point.set_coordinates(j,i)
 
 				if (found==True and (is_a_sharp(sub_image[i][j])==-1 or j==cols-1)):
 					if(j!=cols-1):
@@ -144,16 +144,66 @@ def recognize_row(sub_image, mode):
 	else:
 		print "Error, choose correct mode"
 
-def get_neighboor(n_rows, n_columns, row, column):
-	if(row-1<0 | columns-1<0):
-		return -1
-	if(row+1>n_rows | columns+1>n_rows):
-		return -1
-	
 
-def recognize_square(sub_image, row, column):
-	if(is_a_sharp(sub_image[row][column])==1):
-		print "get neighboor"
+##Givinf in input the  number of rows, the number of columns and a point object, this function returns the list of its neighboor.
+##If the point is a boundary point the function will return -1
+def get_neighboors_points(sub_image, p):
+	row=p.get_y()
+	col=p.get_x()
+	n_rows=len(sub_image)
+	n_cols=len(sub_image[0])
+	neighboors_list=[]
+	if(row-1<0 or col-1<0):
+		return neighboors_list
+	if(row+1>=n_rows or col+1>=n_cols):
+		return neighboors_list
+
+	neighboors_list.append(Point(col+1, row-1,sub_image[row-1][col+1]) )##NE
+	neighboors_list.append(Point(col, row-1,sub_image[row-1][col]) )##NORTH
+	neighboors_list.append(Point(col-1, row-1,sub_image[row-1][col-1]) )##NW
+	neighboors_list.append(Point(col-1, row ,sub_image[row][col-1]) )##EAST
+	neighboors_list.append(Point(col, row,sub_image[row][col]) )##The point
+	neighboors_list.append(Point(col-1, row+1,sub_image[row+1][col-1]) )##SE
+	neighboors_list.append(Point(col, row+1,sub_image[row+1][col]) )##SOUTH
+	neighboors_list.append(Point(col+1, row+1,sub_image[row+1][col+1]) )##SOUTHWEST
+	neighboors_list.append(Point(col+1, row,sub_image[row][col+1]) )##WEST
+
+	return neighboors_list
+
+##This function compares two lists. It returns -1 if either they have at least one different element or they have different lenght.
+##The function returns 1 if the two lists are completely equal.
+def lists_are_equal(list1, list2):
+	cnt=0
+	if(len(list1)!=len(list2)):
+		return -1##Since they have different lenght, they can't be equal
+	for i in range(len(list1)):
+		if (list1[i]!=list2[i]):
+			return -1
+		else:
+			cnt=cnt+1	
+	return 1
+	
+def get_values_list(list_points):
+	values_list=[]
+	for element in list_points:
+		values_list.append(element.get_value())
+
+	return values_list
+
+def recognize_square(sub_image, point):
+	square=['#','#','#','#','#','#','#','#','#']
+	neighboors_points=[]
+	list_values=[]
+	if(is_a_sharp(sub_image[point.get_y()][point.get_x()])==1):
+		neighboors_points=get_neighboors_points(sub_image, point)
+		list_values=get_values_list(neighboors_points)
+
+	if(lists_are_equal(square, list_values)==1):
+		print "recognized square"
+		for element in neighboors_points:
+			element.print_info()
+
+		
 
 ##The image is drawn on file
 def draw_image_on_file(image, filename):
@@ -170,27 +220,30 @@ def char_matrix2string_list(char_matrix):
 		string_list.append(''.join(row))
 	return string_list
 
+
 def test():
 	raw_content=import_file_painting("logo.in")	
 	n_rows, n_cols= get_size_img(raw_content[0])##The size is the first row.
 	raw_content.pop(0)##The first row is removed
-	raw_content=remove_return_characters(raw_content, n_cols)##the return character are removed
-	char_matrix=list_to_matrix_char(raw_content, n_rows, n_cols)##The raw content-char matrix conversion is performed
+	raw_content=remove_return_characters(raw_content, n_cols)##the return character \n are removed
+	char_matrix=list_to_matrix_char(raw_content, n_rows, n_cols)##The raw conten to char matrix conversion is performed
 	p=Point(0,20)
 	p2=Point(0,20)	
 	sub_image=get_sub_image(char_matrix, 0,20,0,20)##giving the coordinates a submatrix is extracted from the char matrix
-	string_list2=char_matrix2string_list(sub_image)	
+	
+	string_list2=char_matrix2string_list(sub_image)	##Char matrix to string conversion performed in order to have a pretty print
 	print_pretty(string_list2)
+
 	#recognize_row(sub_image, HORIZ_RIGHT)
-	recognize_row(sub_image, HORIZ_RIGHT)
+	n_rows_sub=len(sub_image)
+	n_cols_sub=len(sub_image[0])
+	for y in range(1, n_rows_sub):
+		for x in range(1, n_cols_sub):
+			p=Point(x,y)
+			#print "i:",x
+			recognize_square(sub_image,p)
 	
-	'''
-	DEBUG PRINTS
-	string_list=char_matrix2string_list(sub_image)
-	
-	print_pretty(string_list)
-	print_pretty(string_list2)
-	
-	'''
+	#print_in_good_way()
+
 	
 test()
