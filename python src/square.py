@@ -12,7 +12,7 @@ class Square:
 
 	def print_info(self):
 		self.center.print_info()
-		self.point_p2.print_info()
+		
 
 
 

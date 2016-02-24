@@ -194,7 +194,7 @@ def get_values_list(list_points):
 def recognize_square(sub_image, point):
 	square=['#','#','#','#','#','#','#','#','#']
 	neighboors_points=[]
-	square_list=[]
+	square_recognized=None
 	list_values=[]
 	
 	if(is_a_sharp(sub_image[point.get_y()][point.get_x()])==1):
@@ -202,9 +202,9 @@ def recognize_square(sub_image, point):
 		list_values=get_values_list(neighboors_points)
 
 	if(lists_are_equal(square, list_values)==1):
-		square_list.append(Square(point,1))
-
-	return square_list	
+		square_recognized=Square(point,1)
+		
+	return square_recognized	
 
 ##The image is drawn on file
 def draw_image_on_file(image, filename):
@@ -221,6 +221,18 @@ def char_matrix2string_list(char_matrix):
 		string_list.append(''.join(row))
 	return string_list
 
+def get_list_squares(sub_image):
+	squares_list=[]
+	n_rows_sub=len(sub_image)
+	n_cols_sub=len(sub_image[0])
+	for y in range(1, n_rows_sub):
+		for x in range(1, n_cols_sub):
+			p=Point(x,y)
+			tmp_square=recognize_square(sub_image,p)
+			if(tmp_square!=None):
+				squares_list.append(tmp_square)
+	return squares_list
+
 
 def test():
 	raw_content=import_file_painting("logo.in")	
@@ -234,14 +246,8 @@ def test():
 	
 	string_list2=char_matrix2string_list(sub_image)	##Char matrix to string conversion performed in order to have a pretty print
 	print_pretty(string_list2)
-
+	sqaures_list=get_list_squares(sub_image)
 	#recognize_row(sub_image, HORIZ_RIGHT)
-	n_rows_sub=len(sub_image)
-	n_cols_sub=len(sub_image[0])
-	for y in range(1, n_rows_sub):
-		for x in range(1, n_cols_sub):
-			p=Point(x,y)
-			recognize_square(sub_image,p)
 
 
 	
