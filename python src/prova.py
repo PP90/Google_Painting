@@ -233,6 +233,11 @@ def get_list_squares(sub_image):
 				squares_list.append(tmp_square)
 	return squares_list
 
+def get_empty_image(n_rows, n_cols):
+	empty_image=[]
+	for x in range(0, n_cols):
+		print "To implement"
+
 
 def test():
 	raw_content=import_file_painting("logo.in")	
@@ -248,7 +253,11 @@ def test():
 	print_pretty(string_list2)
 	sqaures_list=get_list_squares(sub_image)
 	#recognize_row(sub_image, HORIZ_RIGHT)
+	empty_image=get_empty_image(len(sub_image),len(sub_image[0]))
+	#string_list3=char_matrix2string_list(empty_image)
+	#print_pretty(string_list3)
 
 
-	
+
+
 test()
