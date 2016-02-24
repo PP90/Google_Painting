@@ -2,6 +2,7 @@
 
 from line import Line
 from point import Point
+from square import Square
 
 HORIZ_LEFT=60
 HORIZ_RIGHT=22
@@ -128,7 +129,7 @@ def recognize_row(sub_image, mode):
 	elif(mode==VER_UP):
 		print "a"
 
-	elif(mode==VER_DOWN):
+	elif(mode==VER_DOWN):##To be done
 		for j in range(0,cols):
 			for i in range(0, rows):
 				if(is_a_sharp(sub_image[i][j])==1):
@@ -193,17 +194,17 @@ def get_values_list(list_points):
 def recognize_square(sub_image, point):
 	square=['#','#','#','#','#','#','#','#','#']
 	neighboors_points=[]
+	square_list=[]
 	list_values=[]
+	
 	if(is_a_sharp(sub_image[point.get_y()][point.get_x()])==1):
 		neighboors_points=get_neighboors_points(sub_image, point)
 		list_values=get_values_list(neighboors_points)
 
 	if(lists_are_equal(square, list_values)==1):
-		print "recognized square"
-		for element in neighboors_points:
-			element.print_info()
+		square_list.append(Square(point,1))
 
-		
+	return square_list	
 
 ##The image is drawn on file
 def draw_image_on_file(image, filename):
@@ -240,10 +241,8 @@ def test():
 	for y in range(1, n_rows_sub):
 		for x in range(1, n_cols_sub):
 			p=Point(x,y)
-			#print "i:",x
 			recognize_square(sub_image,p)
-	
-	#print_in_good_way()
+
 
 	
 test()
