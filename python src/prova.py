@@ -150,15 +150,16 @@ def recognize_lines(sub_image, mode):
 
 ##Givinf in input the  number of rows, the number of columns and a point object, this function returns the list of its neighboor.
 ##If the point is a boundary point the function will return -1
-def get_neighboors_points(sub_image, p):
+def get_neighboors_points(sub_image, p, level=1):
 	row=p.get_y()
 	col=p.get_x()
+	
 	n_rows=len(sub_image)
 	n_cols=len(sub_image[0])
 	neighboors_list=[]
-	if(row-1<0 or col-1<0):
+	if(row-level<0 or col-level<0):
 		return neighboors_list
-	if(row+1>=n_rows or col+1>=n_cols):
+	if(row+level>=n_rows or col+level>=n_cols):
 		return neighboors_list
 
 	neighboors_list.append(Point(col+1, row-1,sub_image[row-1][col+1]) )##NE
