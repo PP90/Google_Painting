@@ -10,6 +10,9 @@ HORIZ_RIGHT=22
 VERTICAL="Vertical"
 HORIZONTAL="Horizontal"
 
+HOR=99
+VER=43
+
 VER_UP=53
 VER_DOWN=34
 
@@ -94,7 +97,7 @@ def get_size_sub_image(sub_image):
 	return n_rows, n_cols
 
 ##Giving a subimage, and the mode of explore the image, this function recognizes if ???
-def recognize_row(sub_image, mode):
+def recognize_lines(sub_image, mode):
 	rows= len(sub_image)
 	cols= len(sub_image[0])
 	found=False
@@ -102,7 +105,7 @@ def recognize_row(sub_image, mode):
 	starting_point=Point()
 	ending_point=Point()
 
-	if(mode==HORIZ_RIGHT):
+	if(mode==HOR):
 		for i in range(0,rows):
 			for j in range(0, cols):
 				if(is_a_sharp(sub_image[i][j])==1 and found==False):
@@ -116,29 +119,28 @@ def recognize_row(sub_image, mode):
 						ending_point=Point(j,i)
 
 					recognized_line= Line(starting_point,ending_point)
-					recognized_line.print_info()
 					lines_list.append(recognized_line)
 					print "\n"
 					found=False
 
 		return lines_list
-		
-	elif(mode==HORIZ_LEFT):
-		print "a"
 
-	elif(mode==VER_UP):
-		print "a"
-
-	elif(mode==VER_DOWN):##To be done
+	elif(mode==VER):##To be done
 		for j in range(0,cols):
 			for i in range(0, rows):
-				if(is_a_sharp(sub_image[i][j])==1):
-					n_sharpes=n_sharpes+1
+				if(is_a_sharp(sub_image[i][j])==1 and found==False):
+					found=True
+					starting_point.set_coordinates(j,i)
 
-				if n_sharpes>0 and (is_a_sharp(sub_image[i][j])==-1 or j==cols-1):
-					recognized_line= Line(i,j,VERTICAL,n_sharpes)
+				if (found==True and (is_a_sharp(sub_image[i][j])==-1 or i==rows-1)):
+					if(i!=cols-1):
+						ending_point=Point(j,i-1)
+					else:
+						ending_point=Point(j,i)
+
+					recognized_line= Line(starting_point,ending_point)
 					lines_list.append(recognized_line)
-					n_sharpes=0	
+					found=False	
 		
 		return lines_list
 	
@@ -240,25 +242,34 @@ def get_empty_image(n_rows, n_cols):
 	
 	return empty_image
 
-def test():
-	raw_content=import_file_painting("logo.in")	
-	n_rows, n_cols= get_size_img(raw_content[0])##The size is the first row.
+def get_char_matrix_from_file(filename):
+	raw_content=import_file_painting(filename)
+	n_rows, n_cols= get_size_img(raw_content[0])##The size is the first row.		
 	raw_content.pop(0)##The first row is removed
 	raw_content=remove_return_characters(raw_content, n_cols)##the return character \n are removed
 	char_matrix=list_to_matrix_char(raw_content, n_rows, n_cols)##The raw conten to char matrix conversion is performed
-	p=Point(0,20)
-	p2=Point(0,20)	
+	return char_matrix
+
+def recognize_shapes(image):
+	squares_list=get_list_squares(image)
+	hor_lines_list=recognize_lines(image, HOR)
+	ver_lines_list=recognize_lines(image, VER)
+
+	return squares_list, hor_lines_list, ver_lines_list
+
+
+def test():
+	char_matrix=get_char_matrix_from_file("logo.in")
 	sub_image=get_sub_image(char_matrix, 0,20,0,20)##giving the coordinates a submatrix is extracted from the char matrix
-	
 	string_list2=char_matrix2string_list(sub_image)	##Char matrix to string conversion performed in order to have a pretty print
 	print_pretty(string_list2)
-	sqaures_list=get_list_squares(sub_image)
-	#recognize_row(sub_image, HORIZ_RIGHT)
+	recognize_shapes(sub_image)
+	'''	
 	print "\n"
 	empty_image=get_empty_image(len(sub_image),len(sub_image[0]))
 	string_list3=char_matrix2string_list(empty_image)
 	print_pretty(string_list3)
-
+	'''
 
 
 
