@@ -8,11 +8,17 @@ class Square:
 
 	def __init__(self, center, radius):
 		self.center=center
-		self.radius
+		self.radius=radius
 
 	def print_info(self):
 		self.center.print_info()
-		
+		print "rad: ", self.radius
+	
+	def get_radius(self):
+		return self.radius
+
+	def get_center(self):
+		return self.center
 
 
 

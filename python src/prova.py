@@ -129,11 +129,11 @@ def recognize_lines(sub_image, mode):
 		for j in range(0,cols):
 			for i in range(0, rows):
 				if(is_a_sharp(sub_image[i][j])==1 and found==False):
-					found=True
 					starting_point=Point(j,i)
+					found=True
 
 				if (found==True and (is_a_sharp(sub_image[i][j])==-1 or i==rows-1)):
-					if(i!=cols-1):
+					if(i!=rows-1):
 						ending_point=Point(j,i-1)
 					else:
 						ending_point=Point(j,i)
@@ -193,7 +193,7 @@ def get_values_list(list_points):
 
 	return values_list
 
-def recognize_square(sub_image, point):
+def recognize_square(sub_image, point):##Actually this function has to be generalized for square which radius has to be bigger than 1
 	square=['#','#','#','#','#','#','#','#','#']
 	neighboors_points=[]
 	square_recognized=None
@@ -203,9 +203,10 @@ def recognize_square(sub_image, point):
 		neighboors_points=get_neighboors_points(sub_image, point)
 		list_values=get_values_list(neighboors_points)
 
-	if(lists_are_equal(square, list_values)==1):
-		square_recognized=Square(point,1)
-		
+		if(lists_are_equal(square, list_values)==1):
+			square_recognized=Square(point,1)
+		else:
+			square_recognized=Square(point,0)
 	return square_recognized	
 
 ##The image is drawn on file
@@ -227,8 +228,8 @@ def get_list_squares(sub_image):
 	squares_list=[]
 	n_rows_sub=len(sub_image)
 	n_cols_sub=len(sub_image[0])
-	for y in range(1, n_rows_sub):
-		for x in range(1, n_cols_sub):
+	for y in range(0, n_rows_sub):
+		for x in range(0, n_cols_sub):
 			p=Point(x,y)
 			tmp_square=recognize_square(sub_image,p)
 			if(tmp_square!=None):
@@ -257,18 +258,26 @@ def recognize_shapes(image):
 	ver_lines_list=recognize_lines(image, VER)
 	return squares_list, hor_lines_list, ver_lines_list
 
-def paint_square(image, square):
-	print "paint square"
+def draw_square(image, square):
+	if(square.get_radius()==1):
+		neighboor_points=get_neighboors_points(image, square.get_center())
+		for point in neighboor_points:
+			image[point.get_y()][point.get_x()]='#'
+	return image		
 
 def draw_line(image, line):
-	p1, p2=line.get_points()
-	line.print_info()
-	print "paint line"
 	if(line.is_hor()==1):
-		print "Is horizontal"
+		p1, p2=line.get_points()
+		for i in range(p1.get_x(), p2.get_x()+1):
+			image[p1.get_y()][i]='#'
+
+		return image
 
 	if(line.is_ver()==1):
-		print "Is vertical"
+		p1, p2=line.get_points()
+		for i in range(p1.get_y(), p2.get_y()+1):
+			image[i][p1.get_x()]='#'
+		return image
 
 def erase_cell(image, point):
 	image[point.get_y()][point.get_x()]='.'
@@ -276,7 +285,7 @@ def erase_cell(image, point):
 
 def draw_element(image, shape):
 	if(isinstance(shape, Square)==1):
-		image=paint_square(image, shape)
+		image=draw_square(image, shape)
 	elif(isinstance(shape, Line)==1):
 		image=draw_line(image, shape)
 	elif(isinstance(shape, Point)==1):
@@ -285,23 +294,22 @@ def draw_element(image, shape):
 		print "Insert correct shape"
 	return image
 
+def print_image(char_matrix):
+	strings_list=char_matrix2string_list(char_matrix)
+	print_pretty(strings_list)
+
 def test():
 	char_matrix=get_char_matrix_from_file("logo.in")
 	sub_image=get_sub_image(char_matrix, 0,20,0,20)##giving the coordinates a submatrix is extracted from the char matrix
-	string_list2=char_matrix2string_list(sub_image)	##Char matrix to string conversion performed in order to have a pretty print
-	print_pretty(string_list2)
+	print_image(sub_image)
 	squares_list, hor_lines_list, ver_lines_list= recognize_shapes(sub_image)
-
+	print "\n"
 	empty_image=get_empty_image(len(sub_image),len(sub_image[0]))
-	string_list3=char_matrix2string_list(empty_image)
-	print_pretty(string_list3)
+	print_image(empty_image)
+	print "\n"
+	for s in squares_list:
+		empty_image=draw_element(empty_image,s)
 
-	s=squares_list[0]
-	h_line=hor_lines_list[0]
-	v_line=ver_lines_list[0]
-	h_line.print_info()
-	draw_element(empty_image, s)
-	draw_element(empty_image, h_line)
-	draw_element(empty_image, v_line)
-
+	print_image(empty_image)
+	
 test()
