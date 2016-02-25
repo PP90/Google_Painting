@@ -109,8 +109,8 @@ def recognize_lines(sub_image, mode):
 		for i in range(0,rows):
 			for j in range(0, cols):
 				if(is_a_sharp(sub_image[i][j])==1 and found==False):
+					starting_point=Point(j,i)
 					found=True
-					starting_point.set_coordinates(j,i)
 
 				if (found==True and (is_a_sharp(sub_image[i][j])==-1 or j==cols-1)):
 					if(j!=cols-1):
@@ -120,9 +120,9 @@ def recognize_lines(sub_image, mode):
 
 					recognized_line= Line(starting_point,ending_point)
 					lines_list.append(recognized_line)
-					print "\n"
 					found=False
 
+		
 		return lines_list
 
 	elif(mode==VER):##To be done
@@ -130,7 +130,7 @@ def recognize_lines(sub_image, mode):
 			for i in range(0, rows):
 				if(is_a_sharp(sub_image[i][j])==1 and found==False):
 					found=True
-					starting_point.set_coordinates(j,i)
+					starting_point=Point(j,i)
 
 				if (found==True and (is_a_sharp(sub_image[i][j])==-1 or i==rows-1)):
 					if(i!=cols-1):
@@ -250,27 +250,58 @@ def get_char_matrix_from_file(filename):
 	char_matrix=list_to_matrix_char(raw_content, n_rows, n_cols)##The raw conten to char matrix conversion is performed
 	return char_matrix
 
+##This function returns the lists of shapes reconginzed
 def recognize_shapes(image):
 	squares_list=get_list_squares(image)
 	hor_lines_list=recognize_lines(image, HOR)
 	ver_lines_list=recognize_lines(image, VER)
-
 	return squares_list, hor_lines_list, ver_lines_list
 
+def paint_square(image, square):
+	print "paint square"
+
+def draw_line(image, line):
+	p1, p2=line.get_points()
+	line.print_info()
+	print "paint line"
+	if(line.is_hor()==1):
+		print "Is horizontal"
+
+	if(line.is_ver()==1):
+		print "Is vertical"
+
+def erase_cell(image, point):
+	image[point.get_y()][point.get_x()]='.'
+	return image
+
+def draw_element(image, shape):
+	if(isinstance(shape, Square)==1):
+		image=paint_square(image, shape)
+	elif(isinstance(shape, Line)==1):
+		image=draw_line(image, shape)
+	elif(isinstance(shape, Point)==1):
+		image=paint_square(image, Point)
+	else:
+		print "Insert correct shape"
+	return image
 
 def test():
 	char_matrix=get_char_matrix_from_file("logo.in")
 	sub_image=get_sub_image(char_matrix, 0,20,0,20)##giving the coordinates a submatrix is extracted from the char matrix
 	string_list2=char_matrix2string_list(sub_image)	##Char matrix to string conversion performed in order to have a pretty print
 	print_pretty(string_list2)
-	recognize_shapes(sub_image)
-	'''	
-	print "\n"
+	squares_list, hor_lines_list, ver_lines_list= recognize_shapes(sub_image)
+
 	empty_image=get_empty_image(len(sub_image),len(sub_image[0]))
 	string_list3=char_matrix2string_list(empty_image)
 	print_pretty(string_list3)
-	'''
 
-
+	s=squares_list[0]
+	h_line=hor_lines_list[0]
+	v_line=ver_lines_list[0]
+	h_line.print_info()
+	draw_element(empty_image, s)
+	draw_element(empty_image, h_line)
+	draw_element(empty_image, v_line)
 
 test()

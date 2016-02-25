@@ -24,7 +24,16 @@ class Line:
 		self.point_p2.print_info()
 		print self.get_lenght()
 
+	def is_hor(self):
+		if(self.point_p1.get_y()==self.point_p2.get_y()):
+			return 1
 
+	def is_ver(self):
+		if(self.point_p1.get_x()==self.point_p2.get_x()):
+			return 1
+
+	def get_points(self):
+		return self.point_p1, self.point_p2
 
 
 
