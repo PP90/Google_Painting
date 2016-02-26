@@ -1,4 +1,5 @@
 from point import Point
+DEFAULT=-1
 
 class Line:
 	point_p1=DEFAULT

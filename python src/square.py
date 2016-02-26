@@ -1,5 +1,5 @@
 from point import Point
-
+DEFAULT=-1
 class Square:
 	center=DEFAULT
 	radius=DEFAULT
@@ -19,4 +19,5 @@ class Square:
 		return self.center
 
 
-
+	def get_points_list(self):
+		print "to implement"

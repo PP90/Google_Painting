@@ -65,34 +65,48 @@ def recognize_lines(image, mode):
 	else:
 		print "Error, choose correct mode"
 
+def get_coordinates(point, k):
+	x=point.get_x()
+	y=point.get_y()
+	i=x+k
+	j=y+k
+	x_list=[]
+	y_list=[]
+	points_list=[]
+	while(i>=x):
+		x_list.append(i)
+		y_list.append(j)
+		i=i-1
+		j=j-1
+	i=x-k
+	j=y-k
+	while(i<x):
+		x_list.append(i)
+		y_list.append(j)		
+		i=i+1
+		j=j+1
+
+	for x_el in x_list:
+		for y_el in y_list:
+			points_list.append(Point(x_el, y_el))
+	return points_list
 
 def get_neighboors_points(image, p, level=1):
-	"""Giving in input an image and a point instance, this function returns the list of its neighboors. If the point is a boundary point the function will return -1"""
+	"""Giving in input an image and a point instance, this function returns the list of its neighboors. If the point is a boundary point the function will return an empty list"""
 	row=p.get_y()
 	col=p.get_x()
 	
 	n_rows=len(image)
 	n_cols=len(image[0])
-	neighboors_list=[]
+	neighboors_list=None
 
 	if(row-level<0 or col-level<0):
 		return neighboors_list
 	if(row+level>=n_rows or col+level>=n_cols):
 		return neighboors_list
 
-	##This function has to be generalized for square ok k radius (k>1)
-	neighboors_list.append(Point(col+1, row-1,image[row-1][col+1]) )##NE
-	neighboors_list.append(Point(col, row-1,image[row-1][col]) )##NORTH
-	neighboors_list.append(Point(col-1, row-1,image[row-1][col-1]) )##NW
-	neighboors_list.append(Point(col-1, row ,image[row][col-1]) )##EAST
-	neighboors_list.append(Point(col, row,image[row][col]) )##The point
-	neighboors_list.append(Point(col-1, row+1,image[row+1][col-1]) )##SE
-	neighboors_list.append(Point(col, row+1,image[row+1][col]) )##SOUTH
-	neighboors_list.append(Point(col+1, row+1,image[row+1][col+1]) )##SOUTHWEST
-	neighboors_list.append(Point(col+1, row,image[row][col+1]) )##WEST
-
+	neighboors_list=get_coordinates(p, level)
 	return neighboors_list
-
 
 def lists_are_equal(list1, list2):
 	"""This function compares two lists. It returns -1 if either they have at least one different element or they have different lenght.The function returns 1 if the two lists are completely equal."""
@@ -111,21 +125,38 @@ def get_values_list(list_points):
 
 	return values_list
 
-def recognize_square(image, point):##Actually this function has to be generalized for square which radius has to be bigger than 1
-	square=['#','#','#','#','#','#','#','#','#']
+def are_all_sharps(image, points_list):
+	count=0
+	if(points_list==None):
+		return -1
+
+	for point in points_list:
+		if(is_a_sharp(image[point.get_y()][point.get_x()])==-1):
+			return -1
+		else:
+			count=count+1
+			
+	return 1
+
+def recognize_square(image, point):
 	neighboors_points=[]
 	square_recognized=None
 	list_values=[]
-	
-	if(is_a_sharp(image[point.get_y()][point.get_x()])==1):
-		neighboors_points=get_neighboors_points(image, point)
-		list_values=get_values_list(neighboors_points)
+	level=1
 
-		if(lists_are_equal(square, list_values)==1):
-			square_recognized=Square(point,1)
-		else:
+	if(is_a_sharp(image[point.get_y()][point.get_x()])==1):
+		neighboors_points=get_neighboors_points(image, point,level)
+
+		if(are_all_sharps(image, neighboors_points)!=1):
 			square_recognized=Square(point,0)
-	return square_recognized	
+			return square_recognized
+
+		while(are_all_sharps(image, neighboors_points)==1):		
+			level=level+1
+			neighboors_points=get_neighboors_points(image, point,level)
+			
+		square_recognized=Square(point,level-1)
+		return square_recognized
 
 def recognize_squares(image):
 	"""This function returns the squares list in the image"""
@@ -139,8 +170,6 @@ def recognize_squares(image):
 			if(tmp_square!=None):
 				squares_list.append(tmp_square)
 	return squares_list
-	
-	return empty_image
 
 def recognize_shapes(image):
 	"""This function returns the lists of shapes reconginzed"""
@@ -151,12 +180,12 @@ def recognize_shapes(image):
 
 def draw_square(image, square):
 	"""This function draws a square in the image. It returns the drawn image"""
-	if(square.get_radius()==1):
-		center=square.get_center()
-		neighboor_points=get_neighboors_points(image, center)
-		print "PAINT_SQUARE", center.get_x(), center.get_y(), "(r:",square.get_radius(),")"
-		for point in neighboor_points:
-			image[point.get_y()][point.get_x()]='#'
+
+	center=square.get_center()
+	neighboor_points=get_neighboors_points(image, center, square.get_radius())
+	print "PAINT_SQUARE", center.get_x(), center.get_y(), "(r:",square.get_radius(),")"
+	for point in neighboor_points:
+		image[point.get_y()][point.get_x()]='#'
 	return image		
 
 def draw_line(image, line):
@@ -179,6 +208,7 @@ def draw_line(image, line):
 def erase_cell(image, point):
 	"""This function erase in the image. It returns the image with erased cell"""
 	image[point.get_y()][point.get_x()]='.'
+	print "ERASE_CELL", point.get_x(), point.get_y()
 	return image
 
 def draw_element(image, shape):
@@ -197,25 +227,65 @@ def print_image(char_matrix):
 	strings_list=char_matrix2string_list(char_matrix)
 	print_pretty(strings_list)
 
+def get_greatest_shapes(shapes_list, fraction=1):
+	max_elements=int(len(shapes_list)*fraction)
+
+	#print "max_elements:", max_elements
+	if(fraction<0 or fraction >1):
+		print "Fraction must be between 0 and 1"
+		return -1
+	if(isinstance(shapes_list[0], Square)==1):
+		max_radius=0
+		for square in shapes_list:
+			radius=square.get_radius()
+			if(radius>max_radius):
+				biggest_square=square
+				max_radius=radius
+		return biggest_square
+	
+	if(isinstance(shapes_list[0], Line)==1):
+		max_length=0
+		for line in shapes_list:
+			length=line.get_lenght()
+			if(length>max_length):
+				longest_line=line
+				max_length=length
+		return longest_line
+	
+
+def draw_image_by(image, chose):
+	squares_list, hor_lines_list, ver_lines_list= recognize_shapes(image)
+	empty_image=get_empty_image(len(image),len(image[0]))
+	print_image(empty_image)
+	print "\n"
+	if(chose==1):
+		for s in squares_list:
+			empty_image=draw_element(empty_image,s)
+	if(chose==2):
+		for h in  hor_lines_list:
+			empty_image=draw_element(empty_image,h)
+	if(chose==3):	
+		for v in  ver_lines_list:
+			empty_image=draw_element(empty_image,v)
+	
+	print_image(empty_image)
+
+def draw_biggest_squares(image, squares_list):
+	biggest_square=get_greatest_shapes(squares_list)
+	image=draw_square(image, biggest_square)
+	print_image(image)
+
+def draw_longest_line(image, lines_list):
+	longest_line=get_greatest_shapes(lines_list)
+	image=draw_line(image, longest_line)
+	print_image(image)
+	
 def test():
-	image=get_char_matrix_from_file("logo.in")
+	image=get_char_matrix_from_file("logo2.in")
 	print_image(image)
 	squares_list, hor_lines_list, ver_lines_list= recognize_shapes(image)
 	print "\n"
 	empty_image=get_empty_image(len(image),len(image[0]))
 	print_image(empty_image)
-	print "\n"
-
-	#for s in squares_list:
-	#	empty_image=draw_element(empty_image,s)
-	
-	
-	#for h in  hor_lines_list:
-	#	empty_image=draw_element(empty_image,h)
-		
-	for v in  ver_lines_list:
-		empty_image=draw_element(empty_image,v)
-	print_image(empty_image)
-	
-	
+	draw_longest_line(empty_image, ver_lines_list)	
 test()
