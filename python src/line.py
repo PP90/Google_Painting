@@ -1,9 +1,5 @@
 from point import Point
 
-VERTICAL="Vertical"
-HORIZONTAL="Horizontal"
-DEFAULT=-1
-
 class Line:
 	point_p1=DEFAULT
 	point_p2=DEFAULT

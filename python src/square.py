@@ -1,7 +1,5 @@
 from point import Point
 
-DEFAULT=-1
-
 class Square:
 	center=DEFAULT
 	radius=DEFAULT
