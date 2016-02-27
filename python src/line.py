@@ -24,13 +24,21 @@ class Line:
 	def is_hor(self):
 		if(self.point_p1.get_y()==self.point_p2.get_y()):
 			return 1
+		else:
+			return -1
 
 	def is_ver(self):
 		if(self.point_p1.get_x()==self.point_p2.get_x()):
 			return 1
+		else:
+			return -1
 
 	def get_points(self):
 		return self.point_p1, self.point_p2
 
-
+	def is_a_unitar_line(self):
+		if(self.point_p1.get_x()==self.point_p2.get_x() & self.point_p1.get_y()==self.point_p2.get_y()):
+			return 1
+		else:
+			return -1
 

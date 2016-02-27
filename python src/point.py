@@ -17,9 +17,9 @@ class Point:
 		return self.x
 
 	def print_info(self):
-		print "(x,y) value", self.x, self.y, 
+		print "(x,y)", self.x, self.y, 
 		if(self.value!=DEFAULT):	
-			print self.value
+			print "value",self.value
 
 	def return_x_y(self):
 		return x,y

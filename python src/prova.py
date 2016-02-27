@@ -51,15 +51,16 @@ def recognize_lines(image, mode):
 					found=True
 
 				if (found==True and (is_a_sharp(image[i][j])==-1 or i==rows-1)):
-					if(i!=rows-1):
+					if(i!=rows-1):##If i is not the last vertical point
 						ending_point=Point(j,i-1)
-					else:
-						ending_point=Point(j,i)
-
+					else:#If i is the last vertical point (the bottom point)
+						if(is_a_sharp(image[i][j])==1):
+							ending_point=Point(j,i)
+						else:
+							ending_point=Point(j,i-1)
 					recognized_line= Line(starting_point,ending_point)
 					lines_list.append(recognized_line)
 					found=False	
-		
 		return lines_list
 	
 	else:
@@ -91,7 +92,7 @@ def get_coordinates(point, k):
 			points_list.append(Point(x_el, y_el))
 	return points_list
 
-def get_neighboors_points(image, p, level=1):
+def get_neighboors_points(image, p, level):
 	"""Giving in input an image and a point instance, this function returns the list of its neighboors. If the point is a boundary point the function will return an empty list"""
 	row=p.get_y()
 	col=p.get_x()
@@ -126,17 +127,28 @@ def get_values_list(list_points):
 	return values_list
 
 def are_all_sharps(image, points_list):
-	count=0
+	cnt=0
 	if(points_list==None):
 		return -1
 
 	for point in points_list:
-		if(is_a_sharp(image[point.get_y()][point.get_x()])==-1):
-			return -1
-		else:
+		if(is_a_sharp(image[point.get_y()][point.get_x()])==1):
+			cnt=cnt+1
+
+	if(cnt==len(points_list)):
+		print "Is a fullfilled square -> ",cnt
+		return 1
+	else:
+		print "Cnt:",cnt
+		##COUNT IN SOME WAY THE NUMBER OF HOLES
+		return -1	
+
+def get_holed_sqaure(image, neighboors_points, level=1):
+	count=0
+	for point in neighboors_points:
+		if(is_a_sharp(point)==1):
 			count=count+1
-			
-	return 1
+	print count
 
 def recognize_square(image, point):
 	neighboors_points=[]
@@ -155,7 +167,7 @@ def recognize_square(image, point):
 			level=level+1
 			neighboors_points=get_neighboors_points(image, point,level)
 			
-		square_recognized=Square(point,level-1)
+		square_recognized=Square(point,level-1, neighboors_points)
 		return square_recognized
 
 def recognize_squares(image):
@@ -192,15 +204,14 @@ def draw_line(image, line):
 	"""This function draws a line in the image. It returns the drawn image"""
 	if(line.is_hor()==1):
 		p1, p2=line.get_points()
-		print "PAINT_LINE", p1.get_x(),  p1.get_y(), p2.get_x(),  p2.get_y(), "( l:",line.get_lenght(),")"
+		print "PAINT_H_LINE", p1.get_x(),  p1.get_y(), p2.get_x(),  p2.get_y(), "( L:",line.get_lenght(),")"
 		for i in range(p1.get_x(), p2.get_x()+1):
-			image[p1.get_y()][i]='#'
-			
+			image[p1.get_y()][i]='#'	
 		return image
 
 	if(line.is_ver()==1):
 		p1, p2=line.get_points()
-		print "PAINT_LINE", p1.get_x(),  p1.get_y(), p2.get_x(),  p2.get_y(), "( l:",line.get_lenght(),")"
+		print "PAINT_V_LINE", p1.get_x(),  p1.get_y(), p2.get_x(),  p2.get_y(), "( L:",line.get_lenght(),")"
 		for i in range(p1.get_y(), p2.get_y()+1):
 			image[i][p1.get_x()]='#'
 		return image
@@ -255,8 +266,9 @@ def get_greatest_shapes(shapes_list, fraction=1):
 
 def draw_image_by(image, chose):
 	squares_list, hor_lines_list, ver_lines_list= recognize_shapes(image)
+	print_image(image)
 	empty_image=get_empty_image(len(image),len(image[0]))
-	print_image(empty_image)
+	#print_image(empty_image)
 	print "\n"
 	if(chose==1):
 		for s in squares_list:
@@ -268,24 +280,63 @@ def draw_image_by(image, chose):
 		for v in  ver_lines_list:
 			empty_image=draw_element(empty_image,v)
 	
+	
 	print_image(empty_image)
+	return empty_image
 
-def draw_biggest_squares(image, squares_list):
+def draw_biggest_square(image, squares_list):
 	biggest_square=get_greatest_shapes(squares_list)
 	image=draw_square(image, biggest_square)
 	print_image(image)
+	return image
 
 def draw_longest_line(image, lines_list):
 	longest_line=get_greatest_shapes(lines_list)
 	image=draw_line(image, longest_line)
 	print_image(image)
-	
+	return image
+
+def count_sharps(image):
+	count=0
+	for y in range(0, len(image)):
+		for x in range(0, len(image[0])):
+			if(is_a_sharp(image[y][x])==1):
+				count=count+1
+	return count
+
+def how_much_filled(image, drawn_image):
+	total=float(count_sharps(image))
+	partial=float(count_sharps( drawn_image))
+	fraction=float(partial/total)
+	return fraction
+
+def are_equal(image1, image2):
+	if(image1==None or image2==None):
+		print "The images must not be none"
+
+	if(len(image1)!=len(image2)):
+		print "Different length"
+		return -1
+
+	for y in range (0, len(image1)):
+		for x in range(0, len(image1[0])):
+			if(image1[y][x]!=image2[y][x]):
+				print "Element different at (row, column)", y,x
+				return -1
+	print "They are equal"	
+	return 1
+		
+
 def test():
-	image=get_char_matrix_from_file("logo2.in")
-	print_image(image)
+	image=get_char_matrix_from_file("logo.in")
 	squares_list, hor_lines_list, ver_lines_list= recognize_shapes(image)
-	print "\n"
-	empty_image=get_empty_image(len(image),len(image[0]))
-	print_image(empty_image)
-	draw_longest_line(empty_image, ver_lines_list)	
+	print_image(image)
+	'''
+	empty_image=draw_longest_line(empty_image, ver_lines_list)	
+	print how_much_filled(image, empty_image)
+	empty_image=draw_longest_line(empty_image, hor_lines_list)
+	print how_much_filled(image, empty_image)
+	empty_image=draw_biggest_square(empty_image, squares_list)
+	print how_much_filled(image, empty_image)
+	'''
 test()
