@@ -126,42 +126,52 @@ def get_values_list(list_points):
 
 	return values_list
 
+
 def are_all_sharps(image, points_list):
-	cnt=0
+	"""Giving an image by which the points list is extracted, this function returns:
+	 1 if all elements of points list are sharps
+	-1 if less than k-1 elements are sharps
+	-2 if points_list is None
+	an holes_list (which is a list of Point object) if the number of sharpes are between k-2 and len(points_list)"""
+	
 	if(points_list==None):
-		return -1
+		return -2
+	
+	cnt=0
+	holes_list=[]
 
 	for point in points_list:
 		if(is_a_sharp(image[point.get_y()][point.get_x()])==1):
 			cnt=cnt+1
-
-	if(cnt==len(points_list)):
-		print "Is a fullfilled square -> ",cnt
+		else:
+			holes_list.append(point)
+	
+	if(cnt==len(points_list)):##Is a fullfilled square
+		print "Fullfilled sqaure of  ",cnt, " sharps"
 		return 1
-	else:
-		print "Cnt:",cnt
-		##COUNT IN SOME WAY THE NUMBER OF HOLES
-		return -1	
-
-def get_holed_sqaure(image, neighboors_points, level=1):
-	count=0
-	for point in neighboors_points:
-		if(is_a_sharp(point)==1):
-			count=count+1
-	print count
+	k=7
+	if(cnt<k):##Is a holed square. The number of sharps is less than k.
+		return -1
+	
+	if(cnt<len(points_list) and cnt >k):
+		return holes_list	
 
 def recognize_square(image, point):
 	neighboors_points=[]
 	square_recognized=None
-	list_values=[]
 	level=1
 
 	if(is_a_sharp(image[point.get_y()][point.get_x()])==1):
 		neighboors_points=get_neighboors_points(image, point,level)
-
-		if(are_all_sharps(image, neighboors_points)!=1):
+		
+		if(are_all_sharps(image, neighboors_points)==-1):
 			square_recognized=Square(point,0)
 			return square_recognized
+
+		tmp=are_all_sharps(image, neighboors_points)
+		print type(tmp)
+		if(isinstance(tmp,list)==1):
+			square_recognized=Square(point,1,tmp)
 
 		while(are_all_sharps(image, neighboors_points)==1):		
 			level=level+1
