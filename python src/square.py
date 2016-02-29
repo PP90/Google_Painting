@@ -19,6 +19,10 @@ class Square:
 			print "Neighboors list:"
 			for point in self.neighboors_points:
 				point.print_info()
+		if(self.holes_points!=None):
+			print "Holes list:"
+			for point in self.holes_points:
+				point.print_info()
 	
 	def get_radius(self):
 		return self.radius
@@ -27,5 +31,7 @@ class Square:
 		return self.center
 
 	def get_neighboor_points(self):
-		self.neighboors_points
+		return self.neighboors_points
 
+	def get_holes_points(self):
+		return self.holes_points
