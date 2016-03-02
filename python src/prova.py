@@ -107,7 +107,7 @@ def get_coordinates(point, k):
 	return points_list
 
 def get_neighboors_points(image, p, level):
-	"""Giving in input an image and a point instance, this function returns the list of its neighboors. If the point is a boundary point the function will return an empty list"""
+	"""Giving in input an image and a point instance, this function returns the list of its neighboors. If the point is a boundary point the function will return None"""
 	row=p.get_y()
 	col=p.get_x()
 	
@@ -169,28 +169,43 @@ def are_all_sharps(image, points_list):
 	if(cnt<len(points_list) and cnt >k):
 		return holes_list	
 
+def how_much_overlapped(image, shape):
+		overlapped_factor=1
+		cnt=0
+		
+		points=shape.get_points()
+		if(points!=None):
+			for point in points:
+				if(image[point.get_y()][point.get_x()]=='#'):
+					cnt=cnt+1
+
+			overlapped_factor=float(cnt)/float(len(points))
+		return overlapped_factor
+
+
 def recognize_square(image, point):
-	neighboors_points=[]
+	points=[]
 	square_recognized=None
 	level=1
 
 	if(is_a_sharp(image[point.get_y()][point.get_x()])==1):
-		neighboors_points=get_neighboors_points(image, point,level)
+		points=get_neighboors_points(image, point,level)
 		
-		if(are_all_sharps(image, neighboors_points)==-1):
-			square_recognized=Square(point,0)
+		if(are_all_sharps(image, points)==-1):
+			square_recognized=Square(point,0,point)
 			return square_recognized
 
-		tmp=are_all_sharps(image, neighboors_points)
+		tmp=are_all_sharps(image, points)
 		if(isinstance(tmp,list)==1):
-			square_recognized=Square(point,1,neighboors_points, tmp)
+			square_recognized=Square(point,1,points, tmp)
 			return square_recognized
 
-		while(are_all_sharps(image, neighboors_points)==1):		
+		while(are_all_sharps(image, points)==1):		
 			level=level+1
-			neighboors_points=get_neighboors_points(image, point,level)
+			points=get_neighboors_points(image, point,level)
 			
-		square_recognized=Square(point,level-1, neighboors_points)
+		square_recognized=Square(point,level-1, points)
+
 		return square_recognized
 
 def recognize_squares(image):
@@ -269,29 +284,36 @@ def print_image(char_matrix):
 	print_pretty(strings_list)
 
 def get_greatest_shapes(shapes_list, fraction=1):
-	max_elements=int(len(shapes_list)*fraction)
 
-	#print "max_elements:", max_elements
-	if(fraction<0 or fraction >1):
-		print "Fraction must be between 0 and 1"
-		return -1
+	biggest_squares_list=[]
+	longest_lines_list=[]
+	
+
 	if(isinstance(shapes_list[0], Square)==1):
 		max_radius=0
+
 		for square in shapes_list:
 			radius=square.get_radius()
 			if(radius>max_radius):
-				biggest_square=square
 				max_radius=radius
-		return biggest_square
+
+		for square in shapes_list:
+			if(square.get_radius()==max_radius):
+				biggest_squares_list.append(square)
+				shapes_list.remove(square)
+		return biggest_squares_list, shapes_list
 	
 	if(isinstance(shapes_list[0], Line)==1):
 		max_length=0
 		for line in shapes_list:
 			length=line.get_lenght()
 			if(length>max_length):
-				longest_line=line
 				max_length=length
-		return longest_line
+		for line in shapes_list:
+			if(line.get_lenght()==max_length):
+				longest_lines_list.append(line)
+				shapes_list.remove(line)
+		return	longest_lines_list, shapes_list
 	
 
 def draw_image_by(image, chose, n_op):
@@ -314,18 +336,21 @@ def draw_image_by(image, chose, n_op):
 	print_image(empty_image)
 	return empty_image
 
-def draw_biggest_square(image, squares_list, n_op):
-	biggest_square=get_greatest_shapes(squares_list)
-	image, n_op=draw_square(image, biggest_square, n_op)
+def draw_biggest_squares(image, squares_list, n_op):
+	biggest_squares, squares_list=get_greatest_shapes(squares_list)
+	for square in biggest_squares:
+		if(square.get_holes_points()==None and how_much_overlapped(image, square)<0.5):
+			image, n_op=draw_square(image, square, n_op)
 	print_image(image)
-	n_op=n_op+1
-	return image, n_op
+	return image, n_op, squares_list
 
-def draw_longest_line(image, lines_list, n_op):
-	longest_line=get_greatest_shapes(lines_list)
-	image, n_op=draw_line(image, longest_line, n_op)
+def draw_longest_lines(image, lines_list, n_op):
+	longest_lines, lines_list=get_greatest_shapes(lines_list)
+	for line in longest_lines:
+		if(how_much_overlapped(image,line)<1):
+			image, n_op=draw_line(image, line, n_op)
 	print_image(image)
-	return image, n_op
+	return image, n_op, lines_list
 
 def count_sharps(image):
 	count=0
@@ -357,17 +382,25 @@ def are_equal(image1, image2):
 				return -1
 	print "They are equal"	
 	return 1
-		
-
+	
+	##Euristic:
+	##1.All shapes (squares, vertical lines and horizonal lines) are recognized. 
+	##2. The biggest shapes are extracted and then deleted from recognized shapes list. "biggest means" the longest lines (horizontal and vertical) and the biggest squares
+	##3. Such shapes are drawn.
+	##4. 
 def test():
 	n_op=0
 	image=get_char_matrix_from_file("logo.in")
 	squares_list, hor_lines_list, ver_lines_list= recognize_shapes(image)
 	empty_image=get_empty_image(len(image), len(image[0]))
+	print_image(image)
+	while(len(ver_lines_list)>0):
+		empty_image, n_op, ver_lines_list=draw_longest_lines(empty_image, ver_lines_list, n_op)
+		#print_image(empty_image)
+		print n_op
+		print how_much_filled(image, empty_image)
 	
-	#empty_image, n_op=draw_longest_line(empty_image, ver_lines_list, n_op)	
-	#empty_image, n_op=draw_longest_line(empty_image, hor_lines_list, n_op)
-	#empty_image, n_op=draw_biggest_square(empty_image, squares_list, n_op)
-
+	#empty_image, n_op, hor_lines_list=draw_longest_lines(empty_image, hor_lines_list, n_op)
+	#empty_image, n_op, squares_list=draw_biggest_squares(empty_image, squares_list, n_op)
 	
 test()
