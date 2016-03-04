@@ -11,6 +11,7 @@ class Square:
 		self.radius=radius
 		self.holes_points=holes_points
 		self.points=points
+		
 
 	def print_info(self):
 		print "Center:"
@@ -36,3 +37,12 @@ class Square:
 
 	def get_holes_points(self):
 		return self.holes_points
+
+	def get_size(self):##To be generalized. Now is fittizzio assai tanto per farlo funzionare
+		if(isinstance(self.points,list)==1):
+			if(self.radius==1):
+				return 9
+			if(self.radius==2):
+				return 25
+		else:
+			return 1

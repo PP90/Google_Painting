@@ -58,8 +58,10 @@ def char_matrix2string_list(char_matrix):
 		string_list.append(''.join(row))
 	return string_list
 
-def get_empty_image(n_rows, n_cols):
+def get_empty_image(image):
 	"""An empty image is created. Empty means that the image is matrix of n_rows x n_cols elements"""
+	n_rows=len(image)
+	n_cols=len(image[0])
 	empty_image=[None]*n_rows
 	for x in range(0, n_rows):
 		empty_image[x]=['.']*n_cols

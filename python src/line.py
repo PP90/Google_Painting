@@ -1,4 +1,4 @@
-from point import Point
+from point import Point 
 DEFAULT=-1
 
 class Line:
@@ -9,7 +9,7 @@ class Line:
 		self.point_p1=point_p1
 		self.point_p2=point_p2
 
-	def get_lenght(self):
+	def get_size(self):
 		if(self.point_p1.get_x()==self.point_p2.get_x()):
 			return (self.point_p2.get_y()-self.point_p1.get_y()+1)
 		if(self.point_p1.get_y()==self.point_p2.get_y()):
@@ -19,7 +19,7 @@ class Line:
 	def print_info(self):
 		self.point_p1.print_info()
 		self.point_p2.print_info()
-		print self.get_lenght()
+		print self.get_size()
 
 	def is_hor(self):
 		if(self.point_p1.get_y()==self.point_p2.get_y()):

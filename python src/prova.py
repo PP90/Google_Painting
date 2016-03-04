@@ -3,6 +3,7 @@ from line import Line
 from point import Point
 from square import Square
 from parsing import *
+import itertools
 
 HOR=99
 VER=43
@@ -192,7 +193,9 @@ def recognize_square(image, point):
 		points=get_neighboors_points(image, point,level)
 		
 		if(are_all_sharps(image, points)==-1):
-			square_recognized=Square(point,0,point)
+			single_points_list=[]
+			single_points_list.append(point)
+			square_recognized=Square(point,0,single_points_list)
 			return square_recognized
 
 		tmp=are_all_sharps(image, points)
@@ -248,7 +251,7 @@ def draw_line(image, line, n_op):
 	"""This function draws a line in the image. It returns the drawn image"""
 	if(line.is_hor()==1):
 		p1, p2=line.get_points()
-		print "PAINT_H_LINE", p1.get_x(),  p1.get_y(), p2.get_x(),  p2.get_y(), "( L:",line.get_lenght(),")"
+		print "PAINT_H_LINE", p1.get_x(),  p1.get_y(), p2.get_x(),  p2.get_y(), "( L:",line.get_size(),")"
 		for i in range(p1.get_x(), p2.get_x()+1):
 			image[p1.get_y()][i]='#'
 		n_op=n_op+1	
@@ -256,7 +259,7 @@ def draw_line(image, line, n_op):
 
 	if(line.is_ver()==1):
 		p1, p2=line.get_points()
-		print "PAINT_V_LINE", p1.get_x(),  p1.get_y(), p2.get_x(),  p2.get_y(), "( L:",line.get_lenght(),")"
+		print "PAINT_V_LINE", p1.get_x(),  p1.get_y(), p2.get_x(),  p2.get_y(), "( L:",line.get_size(),")"
 		for i in range(p1.get_y(), p2.get_y()+1):
 			image[i][p1.get_x()]='#'
 		n_op=n_op+1
@@ -270,9 +273,9 @@ def erase_cell(image, point, n_op):
 	return image, n_op
 
 def draw_element(image, shape, n_op):
-	if(isinstance(shape, Square)==1):
+	if(isinstance(shape, Square)==1 and how_much_overlapped(image, shape)<1):
 		image, n_op=draw_square(image, shape, n_op)
-	elif(isinstance(shape, Line)==1):
+	elif(isinstance(shape, Line)==1 and how_much_overlapped(image, shape)<1):
 		image, n_op=draw_line(image, shape, n_op)
 	else:
 		print "Insert correct shape"
@@ -283,18 +286,18 @@ def print_image(char_matrix):
 	strings_list=char_matrix2string_list(char_matrix)
 	print_pretty(strings_list)
 
-def get_greatest_shapes(shapes_list, fraction=1):
+def get_greatest_shapes(shapes_list):
 
 	biggest_squares_list=[]
 	longest_lines_list=[]
 	
 
 	if(isinstance(shapes_list[0], Square)==1):
-		max_radius=0
+		max_radius=1
 
 		for square in shapes_list:
 			radius=square.get_radius()
-			if(radius>max_radius):
+			if(radius>=max_radius):
 				max_radius=radius
 
 		for square in shapes_list:
@@ -306,11 +309,11 @@ def get_greatest_shapes(shapes_list, fraction=1):
 	if(isinstance(shapes_list[0], Line)==1):
 		max_length=0
 		for line in shapes_list:
-			length=line.get_lenght()
+			length=line.get_size()
 			if(length>max_length):
 				max_length=length
 		for line in shapes_list:
-			if(line.get_lenght()==max_length):
+			if(line.get_size()==max_length):
 				longest_lines_list.append(line)
 				shapes_list.remove(line)
 		return	longest_lines_list, shapes_list
@@ -387,20 +390,80 @@ def are_equal(image1, image2):
 	##1.All shapes (squares, vertical lines and horizonal lines) are recognized. 
 	##2. The biggest shapes are extracted and then deleted from recognized shapes list. "biggest means" the longest lines (horizontal and vertical) and the biggest squares
 	##3. Such shapes are drawn.
-	##4. 
+	##4. Step 2 and 3 are repeated until there are not more shapes to drawn
+
+def compute_max(a,b,c):
+	"""Giving three list ..."""
+	print a,b,c
+	if(a>=b and a>=c):
+		return a
+	if(b>a and b>=c):
+		return b
+	if(c>a and c>b):
+		return c
+
+def draw_from_the_greatest(ver_lines_list, hor_lines_list, squares_list):
+	a=-1
+	b=-1
+	c=-1	
+	if(not ver_lines_list):
+		"ver line is empty"
+		a=0
+	else:
+		a=ver_lines_list[0].get_size()
+	if(not hor_lines_list):
+		"hor line is empty"
+		b=0
+	else:
+		b=ver_lines_list[0].get_size()
+	if(not squares_list):
+		"square list is empty"
+		c=0
+	else:
+		c=squares_list[0].get_size()
+
+	print "The max is:", compute_max(a,b,c)
+
+def get_sorted_shapes(squares_list, hor_lines_list, ver_lines_list):##This sorting algorithm has a complexity of n^2
+	"""This function sorts the shapes according to their size"""
+	max_size=1
+	shapes_list=list(itertools.chain(squares_list, hor_lines_list, ver_lines_list))	
+	sorted_shapes=[]
+	greatest_shape="Foo"
+	lennn= len(shapes_list)
+	idx_tmp=-1
+	while(len(shapes_list)>0):
+		for idx, shape in enumerate(shapes_list):
+			tmp_size=shape.get_size()
+			if(tmp_size>max_size):
+				greatest_shape=shape
+				max_size=tmp_size
+				idx_tmp=idx
+		max_size=1
+		if(idx_tmp<len(shapes_list)):
+			shapes_list.pop(idx_tmp)
+			sorted_shapes.append(greatest_shape)
+		else:
+			break
+
+	return sorted_shapes
+
 def test():
 	n_op=0
 	image=get_char_matrix_from_file("logo.in")
 	squares_list, hor_lines_list, ver_lines_list= recognize_shapes(image)
-	empty_image=get_empty_image(len(image), len(image[0]))
-	print_image(image)
-	while(len(ver_lines_list)>0):
-		empty_image, n_op, ver_lines_list=draw_longest_lines(empty_image, ver_lines_list, n_op)
-		#print_image(empty_image)
-		print n_op
-		print how_much_filled(image, empty_image)
-	
+	empty_image=get_empty_image(image)
+	print_image(image)	
+	sorted_shapes=get_sorted_shapes(squares_list, hor_lines_list, ver_lines_list)
+	for shape in sorted_shapes:
+		empty_image, n_op=draw_element(empty_image, shape, n_op)
+		print n_op, how_much_filled(image, empty_image)
+		print_image(empty_image)
+	#empty_image, n_op, ver_lines_list=draw_longest_lines(empty_image, ver_lines_list, n_op)
 	#empty_image, n_op, hor_lines_list=draw_longest_lines(empty_image, hor_lines_list, n_op)
 	#empty_image, n_op, squares_list=draw_biggest_squares(empty_image, squares_list, n_op)
+	#hm=how_much_filled(image, empty_image)
+	#print n_op
+	#print hm
 	
 test()
